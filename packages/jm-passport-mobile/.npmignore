@@ -1,0 +1,10 @@
+.git
+.idea
+.svn
+benchmark
+docs
+logs
+tests
+spec
+package-lock.json
+yarn.lock

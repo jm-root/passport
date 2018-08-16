@@ -1,0 +1,38 @@
+{
+  "name": "jm-passport-mobile",
+  "version": "2.0.0",
+  "description": "passport service for mobile",
+  "main": "./lib/index",
+  "scripts": {
+    "start": "jm-server",
+    "cluster": "jm-server --cluster",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jm-root/passport.git"
+  },
+  "keywords": [
+    "javascript",
+    "jm-passport-mobile"
+  ],
+  "author": {
+    "name": "Jeff YU"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jm-root/passport/issues"
+  },
+  "homepage": "https://github.com/jm-root/passport",
+  "dependencies": {
+    "config": "^2.0.1",
+    "jm-ms-wrapper": "^1.0.1",
+    "jm-server": "^2.0.6"
+  },
+  "devDependencies": {
+    "jest": "^22.4.3"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
