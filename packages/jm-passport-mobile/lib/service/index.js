@@ -52,12 +52,12 @@ class Passport {
     }
 
     let doc = await this.verifycode.get(`/${smsKeyPrefix}${mobile}?reuse=1`)
-    // doc = await this.sms.get('/send', {
-    //   PhoneNumbers: mobile,
-    //   SignName: config.sign_name,
-    //   TemplateCode: config.template_code,
-    //   TemplateParam: '{"code":"' + doc.code + '"}'
-    // })
+    doc = await this.sms.get('/send', {
+      PhoneNumbers: mobile,
+      SignName: config.sign_name,
+      TemplateCode: config.template_code,
+      TemplateParam: '{"code":"' + doc.code + '"}'
+    })
     return doc
   }
 
