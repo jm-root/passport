@@ -1,0 +1,86 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/jm-root/jm-passport/1.0.0
+info:
+  version: "1.0.0"
+  title: jm-passport-api
+  description: 通行证系统API
+paths:
+  /register:
+    post:
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInfo'
+  /login:
+    post:
+      responses:
+        '200':
+          description: 登陆成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenInfo'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInfo'
+components:
+  schemas:
+    RegisterInfo:
+      type: object
+      properties:
+        account:
+          type: string
+          example: 'root'
+        password:
+          type: string
+          example: '123'
+        nick:
+          type: string
+          example: 'root'
+      description: 注册信息
+    LoginInfo:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      description: 账号密码
+    TokenInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '596d5cb3baeeaf00203de4ec'
+        token:
+          type: string
+          example: '3a90dd3a53914eae857793297738574a85ae74e5914fce723b9dc82d562a31cf'
+        expire:
+          type: integer
+          format: int32
+          example: 3600
+        time:
+          type: integer
+          format: int64
+          example: 1524634308844
+      description: Token信息
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '596d5cb3baeeaf00203de4ec'
+      description: 用户信息

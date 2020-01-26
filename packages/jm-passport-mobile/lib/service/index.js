@@ -1,12 +1,8 @@
 const event = require('jm-event')
-const error = require('jm-err')
-const log = require('jm-log4js')
 const MS = require('jm-ms')
 const ms = new MS()
 const consts = require('../consts')
-const Err = Object.assign(error.Err, consts.Err)
 const t = require('../locale')
-const logger = log.getLogger('passport')
 
 class Passport {
   constructor (opts = {}) {
@@ -27,7 +23,7 @@ class Passport {
 
   async bind (name, uri) {
     uri || (uri = `/${name}`)
-    let doc = await ms.client({uri: this.gateway + uri})
+    let doc = await ms.client({ uri: this.gateway + uri })
     this[name] = doc
     return doc
   }

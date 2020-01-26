@@ -1,10 +1,9 @@
-const config = require('../config')
+const config = require('../../../config')
 const $ = require('../lib')
 
-let service = $(config)
-service.log = (err, doc) => {
-  if (err)
-    console.error(err.stack)
-  if (doc) console.log(doc)
-}
+const opts = { ...config, ...config.modules['jm-passport-mobile'].config }
+console.log(opts)
+
+const service = $(opts)
+
 module.exports = service

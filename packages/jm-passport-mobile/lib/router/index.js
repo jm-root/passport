@@ -41,7 +41,7 @@ module.exports = function (opts = {}) {
     ips.length || (ips = [opts.ip])
     let data = opts.data
     await verifySmsCode(opts)
-    let doc = await service.user.request({uri: '/signup', type: 'post', data, ips})
+    let doc = await service.user.request({ uri: '/signup', type: 'post', data, ips })
     return doc
   }
 
@@ -52,7 +52,7 @@ module.exports = function (opts = {}) {
     await verifySmsCode(opts)
     let doc = await service.user.get(`/users/${data.mobile}/exists`)
     if (doc && !doc.ret) { throw error.err(Err.FA_NOTEXISTS) }
-    doc = await service.sso.request('/signon', 'post', {id: doc.ret}, {ips})
+    doc = await service.sso.request('/signon', 'post', { id: doc.ret }, { ips })
     return doc
   }
 
@@ -61,7 +61,7 @@ module.exports = function (opts = {}) {
     await verifySmsCode(opts)
     let doc = await service.user.get(`/users/${data.mobile}/exists`)
     if (doc && !doc.ret) { throw error.err(Err.FA_NOTEXISTS) }
-    doc = await service.user.post(`/users/${doc.ret}`, {password: data.password})
+    doc = await service.user.post(`/users/${doc.ret}`, { password: data.password })
     return doc
   }
 
