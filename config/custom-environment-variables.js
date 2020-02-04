@@ -1,7 +1,18 @@
 module.exports = {
   gateway: 'gateway',
   service_name: 'service_name',
+
   modules: {
+    'passport-wechat': {
+      config: {
+        wechat_uri: 'wechat_uri'
+      }
+    },
+    'passport-weapp': {
+      config: {
+        weapp_uri: 'weapp_uri'
+      }
+    },
     'jm-passport-mobile': {
       config: {
         sms_key_prefix: 'sms_key_prefix',

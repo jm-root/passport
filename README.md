@@ -31,9 +31,9 @@ docker run -d --name passport  jamma/passport
 
 - jm-passport-guest
 
-- jm-passport-wechat
+- passport-wechat
 
-- jm-passport-weapp
+- passport-weapp
 
 --
 
