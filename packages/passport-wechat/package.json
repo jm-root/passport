@@ -1,6 +1,6 @@
 {
   "name": "passport-wechat",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "main": "./lib/index",
   "jest": {
     "testEnvironment": "node"
