@@ -38,7 +38,7 @@ class Passport {
     })
   }
 
-  async getSms (mobile, opts) {
+  async getSms (mobile, opts = {}) {
     let config = this.config
     let captchaKeyPrefix = this.captchaKeyPrefix
     let smsKeyPrefix = this.smsKeyPrefix
@@ -48,10 +48,14 @@ class Passport {
     }
 
     let doc = await this.verifycode.get(`/${smsKeyPrefix}${mobile}?reuse=1`)
+    const {
+      sign_name: SignName = config.sign_name,
+      template_code: TemplateCode = config.template_code
+    } = opts
     doc = await this.sms.get('/send', {
       PhoneNumbers: mobile,
-      SignName: config.sign_name,
-      TemplateCode: config.template_code,
+      SignName,
+      TemplateCode,
       TemplateParam: '{"code":"' + doc.code + '"}'
     })
     return doc
