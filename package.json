@@ -1,4 +1,6 @@
 {
+  "name": "passport",
+  "version": "2.1.0",
   "private": true,
   "workspaces": [
     "packages/*"

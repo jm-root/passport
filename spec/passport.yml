@@ -1,15 +1,44 @@
+# 约定
+# schema定义名称大写字母开头代表一个对象类型，小写字母开头代表一个基本类型
+# 例如 Role表示{id:'guest'} role表示'guest'
+# Roles表示[{id:'guest'}] roles表示['guest']
 openapi: 3.0.0
-# Added by API Auto Mocking Plugin
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/jm-root/jm-passport/1.0.0
+  - url: 'http://localhost:3000/passport'
+  - url: 'https://api.jamma.cn/passport'
 info:
-  version: "1.0.0"
-  title: jm-passport-api
-  description: 通行证系统API
+  version: 2.1.0
+  title: passport
+  description: 通行证系统API, 支持账号密码、手机号+验证码、微信小程序、微信公众号共4钟登录方式。
+  contact:
+    name: jeff
+    url: 'https://github.com/jammacn'
+    email: jeff@jamma.cn
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: account
+    description: 账号密码
+  - name: mobile
+    description: 手机验证码
+  - name: weapp
+    description: 微信小程序
+  - name: wechat
+    description: 微信公众号
+  - name: advance
+    description: 高级接口
+externalDocs:
+  url: 'https://github.com/jm-root/passport'
 paths:
   /register:
     post:
+      summary: 用户注册
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInfo'
       responses:
         '200':
           description: 注册成功
@@ -17,13 +46,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - account
+  /login:
+    post:
+      summary: 用户登录
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterInfo'
-  /login:
-    post:
+              $ref: '#/components/schemas/LoginInfo'
       responses:
         '200':
           description: 登陆成功
@@ -31,11 +65,135 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - account
+  /mobile/sms/{mobile}:
+    get:
+      summary: 获取短信验证码
+      parameters:
+        - $ref: '#/components/parameters/mobile'
+      responses:
+        '200':
+          description: 发送短信验证码
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - mobile
+  /mobile/sms/{mobile}/verify:
+    get:
+      summary: 检查短信验证码
+      parameters:
+        - $ref: '#/components/parameters/mobile'
+      responses:
+        '200':
+          description: 校验短信验证码
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - mobile
+  /mobile/login:
+    post:
+      summary: 手机号+验证码登录
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginInfo'
+              $ref: '#/components/schemas/MobileLoginInfo'
+      responses:
+        '200':
+          description: 登陆成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - mobile
+  /weapp/login:
+    post:
+      summary: 小程序登录
+      description: 先调用微信小程序的登录接口获得code，再调用本接口
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeappLoginInfo'
+      responses:
+        '200':
+          description: 登陆成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - weapp
+  /weapp/login/{openid}:
+    post:
+      summary: 小程序openid登录
+      description: 绕过小程序code认证直接登录，这个接口一般不用，注意使用场景的安全性
+      parameters:
+        - $ref: '#/components/parameters/openid'
+      responses:
+        '200':
+          description: 登陆成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - advance
+  /wechat/login:
+    post:
+      summary: 公众号登录
+      description: 先调用微信公众号的登录接口获得code，再调用本接口
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WechatLoginInfo'
+      responses:
+        '200':
+          description: 登陆成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - wechat
+  /wechat/login/{openid}:
+    post:
+      summary: 公众号openid登录
+      description: 绕过公众号code认证直接登录，这个接口一般不用，注意使用场景的安全性
+      parameters:
+        - $ref: '#/components/parameters/openid'
+      responses:
+        '200':
+          description: 登陆成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - advance
 components:
   schemas:
     RegisterInfo:
@@ -43,12 +201,15 @@ components:
       properties:
         account:
           type: string
+          description: 账号
           example: 'root'
         password:
           type: string
+          description: 密码
           example: '123'
         nick:
           type: string
+          description: 昵称
           example: 'root'
       description: 注册信息
     LoginInfo:
@@ -56,8 +217,12 @@ components:
       properties:
         username:
           type: string
+          description: 账号
+          example: 'root'
         password:
           type: string
+          description: 密码
+          example: '123'
       description: 账号密码
     TokenInfo:
       type: object
@@ -84,3 +249,111 @@ components:
           type: string
           example: '596d5cb3baeeaf00203de4ec'
       description: 用户信息
+    MobileLoginInfo:
+      type: object
+      properties:
+        mobile:
+          type: string
+        code:
+          type: string
+      description: code
+    KeyInfo:
+      type: object
+      properties:
+        key:
+          type: string
+        code:
+          type: string
+        expire:
+          type: integer
+          format: int32
+          example: 600
+        time:
+          type: integer
+          format: int64
+          example: 1524634308844
+      description: 验证码信息
+    Err:
+      type: object
+      properties:
+        err:
+          type: integer
+          format: int32
+          example: 1
+          description: 错误编码
+        msg:
+          type: string
+          example: Fail
+          description: 错误信息
+        status:
+          type: integer
+          format: int32
+          example: 500
+          description: 状态码
+    BoolRet:
+      type: object
+      properties:
+        ret:
+          type: boolean
+          format: int32
+          example: true
+    Ret:
+      type: object
+      properties:
+        ret:
+          type: integer
+          format: int32
+          example: 0
+          description: 0 失败 1 成功
+    WeappLoginInfo:
+      type: object
+      properties:
+        code:
+          type: string
+        iv:
+          type: string
+        encryptedData:
+          type: string
+      description: 微信小程序登陆信息
+    WechatLoginInfo:
+      type: object
+      properties:
+        code:
+          type: string
+      description: 微信公众号登陆信息
+  parameters:
+    mobile:
+      name: mobile
+      in: path
+      description: 手机号
+      required: true
+      schema:
+        type: string
+      example: 13600000000
+    openid:
+      name: openid
+      in: path
+      description: 微信openid
+      required: true
+      schema:
+        type: string
+      example: ognMm0dIGjumkkAuAFCSsu0-Q0Fg
+  responses:
+    Err:
+      description: 返回错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Err'
+    BoolRet:
+      description: 返回Boolean结果
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BoolRet'
+    Ret:
+      description: 返回结果
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Ret'
