@@ -121,6 +121,40 @@ paths:
           $ref: '#/components/responses/Err'
       tags:
         - mobile
+  /mobile/register:
+    post:
+      summary: 手机号+验证码注册
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileLoginInfo'
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - mobile
+  /mobile/resetPassword:
+    post:
+      summary: 手机号+验证码重置密码
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileResetPasswordInfo'
+      responses:
+        '200':
+          $ref: '#/components/responses/Ret'
+        default:
+          $ref: '#/components/responses/Err'
+      tags:
+        - mobile
   /weapp/login:
     post:
       summary: 小程序登录
@@ -259,7 +293,15 @@ components:
         code:
           type: string
           example: '123456'
-      description: code
+      description: 手机号+验证码
+    MobileResetPasswordInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/MobileLoginInfo'
+      properties:
+        password:
+          type: string
+          example: '123'
     KeyInfo:
       type: object
       properties:
