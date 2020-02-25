@@ -7,7 +7,7 @@ servers:
   - url: 'http://localhost:3000/passport'
   - url: 'https://api.jamma.cn/passport'
 info:
-  version: 2.1.0
+  version: 2.0.0
   title: passport
   description: 通行证系统API, 支持账号密码、手机号+验证码、微信小程序、微信公众号共4钟登录方式。
   contact:
@@ -90,6 +90,7 @@ paths:
       summary: 检查短信验证码
       parameters:
         - $ref: '#/components/parameters/mobile'
+        - $ref: '#/components/parameters/code'
       responses:
         '200':
           description: 校验短信验证码
@@ -254,8 +255,10 @@ components:
       properties:
         mobile:
           type: string
+          example: '13600000000'
         code:
           type: string
+          example: '123456'
       description: code
     KeyInfo:
       type: object
@@ -330,6 +333,14 @@ components:
       schema:
         type: string
       example: 13600000000
+    code:
+      name: code
+      in: query
+      description: 验证码
+      required: true
+      schema:
+        type: string
+      example: 123456
     openid:
       name: openid
       in: path
