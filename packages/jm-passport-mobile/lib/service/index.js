@@ -3,10 +3,18 @@ const MS = require('jm-ms')
 const ms = new MS()
 const consts = require('../consts')
 const t = require('../locale')
+const { arg2bool } = require('jm-utils')
 
 class Passport {
   constructor (opts = {}) {
     event.enableEvent(this)
+
+    let v = ['disable_captcha']
+    v.forEach(function (key) {
+      const value = opts[key]
+      value !== undefined && (opts[key] = arg2bool(value))
+    })
+
     this.ready = true
     this.t = t
     this.config = opts
