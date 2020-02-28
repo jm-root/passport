@@ -2,8 +2,7 @@ const event = require('jm-event')
 const error = require('jm-err')
 const help = require('./help')
 
-let MS = require('jm-ms-core')
-let ms = new MS()
+const { ms } = require('jm-server')
 let Err = error.Err
 
 /**

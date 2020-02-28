@@ -1,9 +1,8 @@
 const error = require('jm-err')
 const help = require('./help')
 const wrapper = require('jm-ms-wrapper')
+const { ms } = require('jm-server')
 
-let MS = require('jm-ms-core')
-let ms = new MS()
 let Err = error.Err
 
 module.exports = function (opts = {}) {

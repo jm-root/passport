@@ -1,10 +1,8 @@
 const error = require('jm-err')
-const MS = require('jm-ms-core')
 const wrapper = require('jm-ms-wrapper')
 const help = require('./help')
 const loadRouter = require('./loadRouter')
-
-const ms = new MS()
+const { ms } = require('jm-server')
 
 class Router {
   constructor (service, { dir }) {

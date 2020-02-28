@@ -1,23 +1,17 @@
-const event = require('jm-event')
-const MS = require('jm-ms')
+const { Service } = require('jm-server')
 const error = require('jm-err')
-let ms = new MS()
 
-class Passport {
+module.exports = class extends Service {
   constructor (opts = {}) {
-    event.enableEvent(this)
-    this.ready = true
-    this.gateway = opts.gateway
-
-    this.bind('sso')
-    this.bind('user')
-  }
-
-  async bind (name, uri) {
-    uri || (uri = `/${name}`)
-    let doc = await ms.client({ uri: this.gateway + uri })
-    this[name] = doc
-    return doc
+    super(opts)
+    const { gateway } = opts
+    require('./gateway')({ gateway })
+      .then(doc => {
+        this.gateway = doc
+        doc.bind('sso')
+        doc.bind('user')
+      })
+    this.emit('ready')
   }
 
   /**
@@ -31,8 +25,8 @@ class Passport {
    * @returns {Promise<*>}
    */
   async register (opts = {}, ips) {
-    let self = this
-    let doc = await self.user.request({ uri: '/users', type: 'post', data: opts, ips: ips })
+    const { user } = this.gateway
+    let doc = await user.request({ uri: '/users', type: 'post', data: opts, ips: ips })
     if (doc.err) throw error.err(doc)
     doc = {
       id: doc.id,
@@ -53,14 +47,12 @@ class Passport {
    * @returns {Promise<*>}
    */
   async login (opts = {}, ips) {
-    let self = this
-    let doc = await self.user.request({ uri: '/signon', type: 'post', data: opts, ips: ips })
+    const { user, sso } = this.gateway
+    let doc = await user.request({ uri: '/signon', type: 'post', data: opts, ips: ips })
     if (doc.err) throw error.err(doc)
-    doc = await self.sso.request({ uri: '/signon', type: 'post', data: doc, ips: ips })
+    doc = await sso.request({ uri: '/signon', type: 'post', data: doc, ips: ips })
     if (doc.err) throw error.err(doc)
     this.emit('login', { id: doc.id })
     return doc
   }
 }
-
-module.exports = Passport

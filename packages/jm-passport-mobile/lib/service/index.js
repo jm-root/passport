@@ -1,6 +1,5 @@
 const event = require('jm-event')
-const MS = require('jm-ms')
-const ms = new MS()
+const { ms } = require('jm-server')
 const consts = require('../consts')
 const t = require('../locale')
 const { arg2bool } = require('jm-utils')

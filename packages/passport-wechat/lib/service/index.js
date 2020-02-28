@@ -15,21 +15,21 @@ module.exports = class extends require('service') {
       wechat_uri: wechatUri
     } = opts
 
-    setTimeout(() => {
-      // 延时确保gateway创建成功
-      const { gateway } = this
-
-      gateway.bind('sso')
-      gateway.bind('wechatUser', '/wechat-user')
-      gateway.bind('wechat', wechatUri)
-
-      this.emit('ready')
-    }, 1000)
+    Object.assign(this, { wechatUri })
   }
 
   router (opts) {
-    const dir = require('path').join(__dirname, '../router')
-    return new (require('router'))(this, { dir, ...opts }).router
+    const dir = `${__dirname}/../router`
+    return this.loadRouter(dir, opts)
+  }
+
+  get gateway () { return this._gateway }
+  set gateway (gateway) {
+    this._gateway = gateway
+    gateway.bind('sso')
+    gateway.bind('wechatUser', '/wechat-user')
+    gateway.bind('wechat', this.wechatUri)
+    this.emit('ready')
   }
 
   /**
