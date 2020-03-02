@@ -1,3 +1,4 @@
+const { Service } = require('jm-server')
 /**
  * passport service
  * @param {Object} opts
@@ -7,31 +8,28 @@
  * }
  * @return {Object} service
  */
-module.exports = class extends require('service') {
+module.exports = class extends Service {
   constructor (opts = {}) {
     super(opts)
 
     const {
+      gateway,
       weapp_uri: weappUri
     } = opts
 
-    Object.assign(this, {
-      weappUri
-    })
+    require('./gateway')({ gateway })
+      .then(doc => {
+        this.gateway = doc
+        doc.bind('sso')
+        doc.bind('wechatUser', '/wechat-user')
+        doc.bind('weapp', weappUri)
+        this.emit('ready')
+      })
   }
 
   router (opts) {
     const dir = `${__dirname}/../router`
     return this.loadRouter(dir, opts)
-  }
-
-  get gateway () { return this._gateway }
-  set gateway (gateway) {
-    this._gateway = gateway
-    gateway.bind('sso')
-    gateway.bind('wechatUser', '/wechat-user')
-    gateway.bind('weapp', this.weappUri)
-    this.emit('ready')
   }
 
   /**

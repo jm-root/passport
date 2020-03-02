@@ -10,8 +10,8 @@ module.exports = class extends Service {
         this.gateway = doc
         doc.bind('sso')
         doc.bind('user')
+        this.emit('ready')
       })
-    this.emit('ready')
   }
 
   /**
