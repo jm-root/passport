@@ -1,6 +1,5 @@
 const { Service } = require('jm-server')
 const log = require('jm-log4js')
-const t = require('locale')
 
 const logger = log.getLogger('main')
 
@@ -10,7 +9,7 @@ module.exports = class extends Service {
     const { gateway, debug, app } = opts
     debug && (logger.setLevel('debug'))
 
-    Object.assign(this, { app, logger, t })
+    Object.assign(this, { app, logger })
 
     if (gateway) {
       require('./gateway')({ gateway })
