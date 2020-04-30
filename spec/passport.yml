@@ -5,6 +5,7 @@
 openapi: 3.0.0
 servers:
   - url: 'http://localhost:3000/passport'
+  - url: 'http://api.l.jamma.cn/passport'
   - url: 'https://api.jamma.cn/passport'
 info:
   version: 2.0.0
