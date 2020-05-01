@@ -14,6 +14,11 @@ module.exports = class extends Service {
       })
   }
 
+  router (opts) {
+    const dir = `${__dirname}/../router`
+    return this.loadRouter(dir, opts)
+  }
+
   /**
    * 注册, 并返回注册信息
    * @param {Object} opts

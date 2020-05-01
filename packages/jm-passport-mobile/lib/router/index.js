@@ -1,74 +1,61 @@
 const error = require('jm-err')
-const help = require('./help')
-const wrapper = require('jm-ms-wrapper')
 const { ms } = require('jm-server')
 
 let Err = error.Err
 
-module.exports = function (opts = {}) {
-  let service = this
-  let config = service.config
-  let captchaKeyPrefix = config.captcha_key_prefix || 'captcha:'
-
-  let filterReady = async opts => {
-    if (!service.ready) {
-      throw error.err(Err.FA_NOTREADY)
-    }
-  }
+module.exports = function (service) {
+  const config = service.config
+  const { captcha_key_prefix: captchaKeyPrefix = 'captcha:' } = config
 
   async function getCaptcha (opts) {
+    const { verifycode, captcha } = service.gateway
     let key = opts.params.key
-    let doc = await service.verifycode.get(`/${captchaKeyPrefix}${key}`)
-    doc = await service.captcha.get(`/${doc.code}`)
+    let doc = await verifycode.get(`/${captchaKeyPrefix}${key}`)
+    doc = await captcha.get(`/${doc.code}`)
     return doc
   }
 
   async function getSms (opts) {
-    let mobile = opts.params.mobile || opts.data.mobile
-    let doc = await service.getSms(mobile, opts.data)
-    return doc
+    const mobile = opts.params.mobile || opts.data.mobile
+    return service.getSms(mobile, opts.data)
   }
 
   async function verifySmsCode (opts) {
-    let mobile = opts.params.mobile || opts.data.mobile
-    let doc = await service.verifySmsCode(mobile, opts.data)
-    return doc
+    const mobile = opts.params.mobile || opts.data.mobile
+    return service.verifySmsCode(mobile, opts.data)
   }
 
   async function register (opts) {
+    const { user } = service.gateway
     let ips = opts.ips || []
     ips.length || (ips = [opts.ip])
-    let data = opts.data
+    const data = opts.data
     await verifySmsCode(opts)
-    let doc = await service.user.request({ uri: '/signup', type: 'post', data, ips })
-    return doc
+    return user.request({ uri: '/signup', type: 'post', data, ips })
   }
 
   async function login (opts) {
+    const { sso, user } = service.gateway
     let ips = opts.ips || []
     ips.length || (ips = [opts.ip])
-    let data = opts.data
+    const data = opts.data
     await verifySmsCode(opts)
-    let doc = await service.user.get(`/users/${data.mobile}/exists`)
+    const doc = await user.get(`/users/${data.mobile}/exists`)
     if (doc && !doc.ret) { throw error.err(Err.FA_NOTEXISTS) }
-    doc = await service.sso.request('/signon', 'post', { id: doc.ret }, { ips })
-    return doc
+    return sso.request('/signon', 'post', { id: doc.ret }, { ips })
   }
 
   async function resetPassword (opts) {
-    let data = opts.data
+    const { user } = service.gateway
+    const { data } = opts
     await verifySmsCode(opts)
-    let doc = await service.user.get(`/users/${data.mobile}/exists`)
+    const doc = await user.get(`/users/${data.mobile}/exists`)
     if (doc && !doc.ret) { throw error.err(Err.FA_NOTEXISTS) }
-    doc = await service.user.post(`/users/${doc.ret}`, { password: data.password })
-    return doc
+    return user.post(`/users/${doc.ret}`, { password: data.password })
   }
 
-  let router = ms.router()
-  wrapper(service.t)(router)
+  const router = ms.router()
   router
-    .use(help(service))
-    .use(filterReady)
     .use('/register', register)
     .use('/login', login)
     .use('/resetPassword', resetPassword)

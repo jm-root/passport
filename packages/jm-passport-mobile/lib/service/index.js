@@ -1,65 +1,56 @@
-const event = require('jm-event')
-const { ms } = require('jm-server')
+const { Service } = require('jm-server')
 const consts = require('../consts')
 const t = require('../locale')
 const { arg2bool } = require('jm-utils')
 
-class Passport {
+module.exports = class extends Service {
   constructor (opts = {}) {
-    event.enableEvent(this)
-
+    super(opts)
     let v = ['disable_captcha']
     v.forEach(function (key) {
       const value = opts[key]
       value !== undefined && (opts[key] = arg2bool(value))
     })
 
-    this.ready = true
     this.t = t
     this.config = opts
-    this.gateway = opts.gateway
     this.captchaKeyPrefix = opts.captcha_key_prefix || consts.captchaKeyPrefix
     this.smsKeyPrefix = opts.sms_key_prefix || consts.smsKeyPrefix
 
-    this.bind('sso')
-    this.bind('user')
-    this.bind('captcha')
-    this.bind('verifycode')
-    this.bind('sms')
-  }
-
-  async bind (name, uri) {
-    uri || (uri = `/${name}`)
-    let doc = await ms.client({ uri: this.gateway + uri })
-    this[name] = doc
-    return doc
-  }
-
-  onReady () {
-    let self = this
-    return new Promise(function (resolve, reject) {
-      if (self.ready) return resolve(self.ready)
-      self.once('ready', function () {
-        resolve(self.ready)
+    const { gateway } = opts
+    require('./gateway')({ gateway })
+      .then(doc => {
+        this.gateway = doc
+        doc.bind('sso')
+        doc.bind('user')
+        doc.bind('captcha')
+        doc.bind('verifycode')
+        doc.bind('sms')
+        this.emit('ready')
       })
-    })
+  }
+
+  router (opts) {
+    const dir = `${__dirname}/../router`
+    return this.loadRouter(dir, opts)
   }
 
   async getSms (mobile, opts = {}) {
+    const { verifycode, sms } = this.gateway
     let config = this.config
     let captchaKeyPrefix = this.captchaKeyPrefix
     let smsKeyPrefix = this.smsKeyPrefix
 
     if (!config.disable_captcha) {
-      await this.verifycode.get(`/${captchaKeyPrefix}${opts.key}/check`, opts)
+      await verifycode.get(`/${captchaKeyPrefix}${opts.key}/check`, opts)
     }
 
-    let doc = await this.verifycode.get(`/${smsKeyPrefix}${mobile}?reuse=1`)
+    let doc = await verifycode.get(`/${smsKeyPrefix}${mobile}?reuse=1`)
     const {
       sign_name: SignName = config.sign_name,
       template_code: TemplateCode = config.template_code
     } = opts
-    doc = await this.sms.get('/send', {
+    doc = await sms.get('/send', {
       PhoneNumbers: mobile,
       SignName,
       TemplateCode,
@@ -69,10 +60,9 @@ class Passport {
   }
 
   async verifySmsCode (mobile, opts) {
+    const { verifycode } = this.gateway
     let smsKeyPrefix = this.smsKeyPrefix
-    let doc = await this.verifycode.get(`/${smsKeyPrefix}${mobile}/check`, opts)
+    let doc = await verifycode.get(`/${smsKeyPrefix}${mobile}/check`, opts)
     return doc
   }
 }
-
-module.exports = Passport

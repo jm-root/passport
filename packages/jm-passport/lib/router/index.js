@@ -1,9 +1,4 @@
-const event = require('jm-event')
-const error = require('jm-err')
-const help = require('./help')
-
 const { ms } = require('jm-server')
-let Err = error.Err
 
 /**
  * @apiDefine Error
@@ -18,20 +13,10 @@ let Err = error.Err
  *     }
  */
 
-module.exports = function (opts = {}) {
-  let service = this
-  let router = ms.router()
+module.exports = function (service) {
+  const router = ms.router()
 
-  service.routes || (service.routes = {})
-  let routes = service.routes
-  event.enableEvent(routes)
-
-  router.use(help(service))
-    .use(function (opts) {
-      if (!service.ready) {
-        throw error.err(Err.FA_NOTREADY)
-      }
-    })
+  router
     .add('/register', 'post', async opts => {
       let ips = opts.ips || []
       ips.length || (ips = [opts.ip])
