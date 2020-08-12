@@ -48,6 +48,7 @@ module.exports = class extends Service {
    * opts参数:{
    *  username: 账号
    *  password: 密码
+   *  clientId: 客户端id
    * }
    * @returns {Promise<*>}
    */
@@ -55,6 +56,8 @@ module.exports = class extends Service {
     const { user, sso } = this.gateway
     let doc = await user.request({ uri: '/signon', type: 'post', data: opts, ips: ips })
     if (doc.err) throw error.err(doc)
+    const { clientId } = opts
+    clientId && (doc.clientId = clientId)
     doc = await sso.request({ uri: '/signon', type: 'post', data: doc, ips: ips })
     if (doc.err) throw error.err(doc)
     this.emit('login', { id: doc.id })

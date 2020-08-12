@@ -38,11 +38,13 @@ module.exports = function (service) {
     const { sso, user } = service.gateway
     let ips = opts.ips || []
     ips.length || (ips = [opts.ip])
-    const data = opts.data
+    const { mobile, clientId } = opts.data
     await verifySmsCode(opts)
-    const doc = await user.get(`/users/${data.mobile}/exists`)
+    const doc = await user.get(`/users/${mobile}/exists`)
     if (doc && !doc.ret) { throw error.err(Err.FA_NOTEXISTS) }
-    return sso.request('/signon', 'post', { id: doc.ret }, { ips })
+    const data = { id: doc.ret }
+    clientId && (data.clientId = clientId)
+    return sso.request('/signon', 'post', data, { ips })
   }
 
   async function resetPassword (opts) {

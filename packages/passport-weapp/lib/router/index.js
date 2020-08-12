@@ -10,9 +10,9 @@ module.exports = function (service) {
   }
 
   async function loginByOpenid (opts) {
-    let { params, ips = [], ip } = opts
+    let { params: { openid }, data: { clientId }, ips = [], ip } = opts
     ips.length || (ips = [ip])
-    return service.loginByOpenid(params, ips)
+    return service.loginByOpenid({ openid, clientId }, ips)
   }
 
   router

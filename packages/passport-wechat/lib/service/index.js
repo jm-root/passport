@@ -40,7 +40,7 @@ module.exports = class extends Service {
    */
   async signon (opts = {}, ips) {
     const { sso, wechatUser } = this.gateway
-    const { openid, unionid, nick, sex: gender, country, province, city, headimgurl: avatarUrl } = opts
+    const { openid, unionid, nick, sex: gender, country, province, city, headimgurl: avatarUrl, clientId } = opts
 
     let data = {
       openid,
@@ -67,6 +67,7 @@ module.exports = class extends Service {
       id: doc.id,
       wechat
     }
+    clientId && (data.clientId = clientId)
 
     return sso.request({ uri: '/signon', type: 'post', data, ips })
   }
@@ -76,14 +77,16 @@ module.exports = class extends Service {
    * @param {Object} opts
    * @example
    * opts参数:{
-   *  code: 授权code
+   *  code: 授权code,
+   *  clientId: 客户端id
    * }
    * @returns {Promise<*>}
    */
-  async login ({ code } = {}, ips = []) {
+  async login ({ code, clientId } = {}, ips = []) {
     const { wechat } = this.gateway
     // 从微信获取用户信息
     let doc = await wechat.get(`/oauth/${code}/user`)
+    clientId && (doc.clientId = clientId)
     doc = await this.signon(doc, ips)
     this.emit('login', { id: doc.id })
     return doc
@@ -94,14 +97,16 @@ module.exports = class extends Service {
    * @param {Object} opts
    * @example
    * opts参数:{
-   *  openid: openid
+   *  openid: openid,
+   *  clientId: 客户端id
    * }
    * @returns {Promise<*>}
    */
-  async loginByOpenid ({ openid } = {}, ips = []) {
+  async loginByOpenid ({ openid, clientId } = {}, ips = []) {
     const { wechat } = this.gateway
     // 从微信获取用户信息
     let doc = await wechat.get(`/users/${openid}`)
+    clientId && (doc.clientId = clientId)
     doc = await this.signon(doc, ips)
     this.emit('login', { id: doc.id })
     return doc
